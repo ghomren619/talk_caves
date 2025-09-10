@@ -1,0 +1,51 @@
+I'll quickly check the backend and frontend configs to ensure mobile access works over your LAN, then give you the exact steps (IP, host flags, firewall tips).
+
+[1 tool called]
+
+I'm going to open the socket client code to see whether it connects to the current origin or an explicit backend URL. That affects whether we need to set `VITE_API_BASE` for phone access.
+
+[1 tool called]
+
+### Let your phone use it on your Wi‑Fi (LAN)
+
+- **Both devices on same Wi‑Fi**; disable VPN/guest network isolation.
+
+1) Find your PC’s LAN IP
+- PowerShell:
+```powershell
+ipconfig
+```
+- Note the IPv4 address, e.g. `192.168.1.50`.
+
+2) Start the backend (already listens on all interfaces)
+```powershell
+cd backend
+./run.bat
+```
+- Allow the Windows Firewall prompt for Private networks.
+- Backend will be at `http://192.168.1.50:8000` from your phone.
+
+3) Configure the frontend to talk to the backend IP
+- Create `frontend/.env`:
+```bash
+VITE_API_BASE=http://192.168.1.50:8000
+```
+
+4) Start the frontend and expose it on LAN
+```powershell
+cd frontend
+npm install
+npm run dev -- --host
+```
+- Open on your phone: `http://192.168.1.50:5173`
+
+If you prefer a preview build:
+```powershell
+npm run build
+npm run preview -- --host
+```
+- Then open: `http://192.168.1.50:5173`
+
+Notes
+- The backend already sets CORS to `*`, and Socket.IO allows all origins.
+- If you can’t connect from your phone, add a firewall inbound rule for TCP 8000 and 5173 (Private profile).
